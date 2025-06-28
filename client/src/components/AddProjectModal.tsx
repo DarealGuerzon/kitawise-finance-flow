@@ -1,6 +1,10 @@
-
 import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,29 +22,44 @@ export function AddProjectModal({ isOpen, onClose }: AddProjectModalProps) {
     client: "",
     expectedIncome: "",
     timeline: "",
-    description: ""
+    description: "",
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Here you would typically save to a database or state management
-    console.log("New project:", formData);
-    
-    toast({
-      title: "Project Added",
-      description: `${formData.name} has been added successfully.`,
-    });
 
-    // Reset form and close modal
-    setFormData({
-      name: "",
-      client: "",
-      expectedIncome: "",
-      timeline: "",
-      description: ""
-    });
-    onClose();
+    try {
+      const res = await fetch("http://localhost:3001/api/projects", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await res.json();
+      console.log("✅ Server response:", data);
+
+      toast({
+        title: "Project Added",
+        description: `${formData.name} has been added successfully.`,
+      });
+
+      // Reset form and close modal
+      setFormData({
+        name: "",
+        client: "",
+        expectedIncome: "",
+        timeline: "",
+        description: "",
+      });
+      onClose();
+    } catch (error) {
+      console.error("❌ Error submitting project:", error);
+      toast({
+        title: "Submission Failed",
+        description: "Something went wrong. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -56,7 +75,9 @@ export function AddProjectModal({ isOpen, onClose }: AddProjectModalProps) {
             <Input
               id="name"
               value={formData.name}
-              onChange={(e) => setFormData({...formData, name: e.target.value})}
+              onChange={(e) =>
+                setFormData({ ...formData, name: e.target.value })
+              }
               required
             />
           </div>
@@ -66,7 +87,9 @@ export function AddProjectModal({ isOpen, onClose }: AddProjectModalProps) {
             <Input
               id="client"
               value={formData.client}
-              onChange={(e) => setFormData({...formData, client: e.target.value})}
+              onChange={(e) =>
+                setFormData({ ...formData, client: e.target.value })
+              }
               required
             />
           </div>
@@ -77,7 +100,9 @@ export function AddProjectModal({ isOpen, onClose }: AddProjectModalProps) {
               id="expectedIncome"
               type="number"
               value={formData.expectedIncome}
-              onChange={(e) => setFormData({...formData, expectedIncome: e.target.value})}
+              onChange={(e) =>
+                setFormData({ ...formData, expectedIncome: e.target.value })
+              }
               required
             />
           </div>
@@ -88,7 +113,9 @@ export function AddProjectModal({ isOpen, onClose }: AddProjectModalProps) {
               id="timeline"
               placeholder="e.g., 2024-07-01 to 2024-08-31"
               value={formData.timeline}
-              onChange={(e) => setFormData({...formData, timeline: e.target.value})}
+              onChange={(e) =>
+                setFormData({ ...formData, timeline: e.target.value })
+              }
               required
             />
           </div>
@@ -98,16 +125,26 @@ export function AddProjectModal({ isOpen, onClose }: AddProjectModalProps) {
             <Textarea
               id="description"
               value={formData.description}
-              onChange={(e) => setFormData({...formData, description: e.target.value})}
+              onChange={(e) =>
+                setFormData({ ...formData, description: e.target.value })
+              }
               rows={3}
             />
           </div>
 
           <div className="flex space-x-2 pt-4">
-            <Button type="button" variant="outline" onClick={onClose} className="flex-1">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onClose}
+              className="flex-1"
+            >
               Cancel
             </Button>
-            <Button type="submit" className="flex-1 bg-blue-600 hover:bg-blue-700">
+            <Button
+              type="submit"
+              className="flex-1 bg-blue-600 hover:bg-blue-700"
+            >
               Add Project
             </Button>
           </div>
