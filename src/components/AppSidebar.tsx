@@ -29,28 +29,28 @@ export function AppSidebar() {
 
   return (
     <>
-      <Sidebar className={`${isCollapsed ? "w-14" : "w-64"} bg-gray-900 border-r border-gray-800`}>
-        <div className="p-4 border-b border-gray-800">
+      <Sidebar className={`${isCollapsed ? "w-14" : "w-64"} bg-sidebar border-r border-sidebar-border`}>
+        <div className="p-4 border-b border-sidebar-border">
           {!isCollapsed && (
             <div className="flex items-center space-x-2">
-              <DollarSign className="h-8 w-8 text-blue-400" />
-              <h1 className="text-xl font-bold text-white">Kitawise</h1>
+              <DollarSign className="h-8 w-8 text-sidebar-foreground" />
+              <h1 className="text-xl font-bold text-sidebar-foreground">Kitawise</h1>
             </div>
           )}
-          <SidebarTrigger className="mt-2 text-gray-400 hover:text-white" />
+          <SidebarTrigger className="mt-2 text-sidebar-foreground/70 hover:text-sidebar-foreground" />
         </div>
 
-        <SidebarContent className="bg-gray-900">
+        <SidebarContent className="bg-sidebar">
           <SidebarGroup>
             <div className="flex items-center justify-between mb-2">
-              <SidebarGroupLabel className="text-gray-300 text-sm font-medium">
+              <SidebarGroupLabel className="text-sidebar-foreground/70 text-sm font-medium">
                 {!isCollapsed && "Current Projects"}
               </SidebarGroupLabel>
               {!isCollapsed && (
                 <Button
                   size="sm"
                   variant="ghost"
-                  className="h-6 w-6 p-0 text-gray-400 hover:text-white hover:bg-gray-800"
+                  className="h-6 w-6 p-0 text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent"
                   onClick={() => setIsAddProjectOpen(true)}
                 >
                   <Plus className="h-3 w-3" />
@@ -62,12 +62,12 @@ export function AppSidebar() {
               <SidebarMenu>
                 {mockProjects.map((project) => (
                   <SidebarMenuItem key={project.id}>
-                    <SidebarMenuButton className="text-gray-300 hover:text-white hover:bg-gray-800">
-                      <Folder className="h-4 w-4 text-blue-400" />
+                    <SidebarMenuButton className="text-sidebar-foreground/80 hover:text-sidebar-foreground hover:bg-sidebar-accent">
+                      <Folder className="h-4 w-4 text-sidebar-foreground/60" />
                       {!isCollapsed && (
                         <div className="flex-1 min-w-0">
                           <div className="font-medium truncate">{project.name}</div>
-                          <div className="text-xs text-gray-500 truncate">{project.client}</div>
+                          <div className="text-xs text-sidebar-foreground/50 truncate">{project.client}</div>
                         </div>
                       )}
                     </SidebarMenuButton>

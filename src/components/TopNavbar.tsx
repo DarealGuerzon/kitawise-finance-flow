@@ -17,7 +17,7 @@ export function TopNavbar({ activeView, setActiveView, onChatbotOpen }: TopNavba
   ];
 
   return (
-    <nav className="bg-white border-b border-gray-200 px-6 py-4">
+    <nav className="bg-background border-b border-border px-6 py-4">
       <div className="flex items-center justify-between">
         <div className="flex space-x-1">
           {navItems.map((item) => (
@@ -26,8 +26,8 @@ export function TopNavbar({ activeView, setActiveView, onChatbotOpen }: TopNavba
               variant={activeView === item.id ? "default" : "ghost"}
               className={`flex items-center space-x-2 ${
                 activeView === item.id 
-                  ? "bg-blue-600 text-white hover:bg-blue-700" 
-                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                  ? "bg-primary text-primary-foreground hover:bg-primary/90" 
+                  : "text-muted-foreground hover:text-foreground hover:bg-accent"
               }`}
               onClick={() => setActiveView(item.id)}
             >
@@ -39,7 +39,7 @@ export function TopNavbar({ activeView, setActiveView, onChatbotOpen }: TopNavba
 
         <Button
           variant="outline"
-          className="flex items-center space-x-2 border-blue-200 text-blue-600 hover:bg-blue-50"
+          className="flex items-center space-x-2 border-border text-foreground hover:bg-accent"
           onClick={onChatbotOpen}
         >
           <MessageSquare className="h-4 w-4" />
