@@ -23,14 +23,15 @@ const mockProjects = [
 ];
 
 export function AppSidebar() {
-  const { collapsed } = useSidebar();
+  const { state } = useSidebar();
+  const isCollapsed = state === "collapsed";
   const [isAddProjectOpen, setIsAddProjectOpen] = useState(false);
 
   return (
     <>
-      <Sidebar className={`${collapsed ? "w-14" : "w-64"} bg-gray-900 border-r border-gray-800`}>
+      <Sidebar className={`${isCollapsed ? "w-14" : "w-64"} bg-gray-900 border-r border-gray-800`}>
         <div className="p-4 border-b border-gray-800">
-          {!collapsed && (
+          {!isCollapsed && (
             <div className="flex items-center space-x-2">
               <DollarSign className="h-8 w-8 text-blue-400" />
               <h1 className="text-xl font-bold text-white">Kitawise</h1>
@@ -43,9 +44,9 @@ export function AppSidebar() {
           <SidebarGroup>
             <div className="flex items-center justify-between mb-2">
               <SidebarGroupLabel className="text-gray-300 text-sm font-medium">
-                {!collapsed && "Current Projects"}
+                {!isCollapsed && "Current Projects"}
               </SidebarGroupLabel>
-              {!collapsed && (
+              {!isCollapsed && (
                 <Button
                   size="sm"
                   variant="ghost"
@@ -63,7 +64,7 @@ export function AppSidebar() {
                   <SidebarMenuItem key={project.id}>
                     <SidebarMenuButton className="text-gray-300 hover:text-white hover:bg-gray-800">
                       <Folder className="h-4 w-4 text-blue-400" />
-                      {!collapsed && (
+                      {!isCollapsed && (
                         <div className="flex-1 min-w-0">
                           <div className="font-medium truncate">{project.name}</div>
                           <div className="text-xs text-gray-500 truncate">{project.client}</div>
