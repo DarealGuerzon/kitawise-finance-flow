@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -12,69 +12,61 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
 import {
   Select,
-  SelectContent,
-  SelectItem,
   SelectTrigger,
   SelectValue,
+  SelectContent,
+  SelectItem,
 } from "@/components/ui/select";
 
-interface AddProjectModalProps {
+interface EditProjectModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onProjectAdded: () => void;
+  project: any;
+  onProjectUpdated: () => void;
 }
 
-export function AddProjectModal({
+export function EditProjectModal({
   isOpen,
   onClose,
-  onProjectAdded,
-}: AddProjectModalProps) {
+  project,
+  onProjectUpdated,
+}: EditProjectModalProps) {
+  if (!project) return null;
   const [formData, setFormData] = useState({
-    name: "",
-    client: "",
-    expectedIncome: "",
-    timeline: "",
-    type: "personal",
-    description: "",
+    ...project,
+    type: project?.type || "personal",
   });
+
+  useEffect(() => {
+    if (project) setFormData(project);
+  }, [project]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const response = await fetch("http://localhost:3001/api/projects", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(formData),
-    });
+    const res = await fetch(
+      `http://localhost:3001/api/projects/${project.id}`,
+      {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      }
+    );
 
-    const data = await response.json();
-    console.log("✅ Project sent:", data); // 👀 Check console in browser
-
-    toast({
-      title: "Project Added",
-      description: `${formData.name} has been added successfully.`,
-    });
-
-    onProjectAdded(); // ← trigger parent to reload projects
-
-    setFormData({
-      name: "",
-      client: "",
-      expectedIncome: "",
-      timeline: "",
-      type: "personal",
-      description: "",
-    });
-    onClose(); // close modal
+    if (res.ok) {
+      toast({ title: "Project Updated" });
+      onProjectUpdated(); // Refresh
+      onClose();
+    } else {
+      toast({ title: "Update Failed", description: "Try again." });
+    }
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Add New Project</DialogTitle>
+          <DialogTitle>Edit Project</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -89,7 +81,6 @@ export function AddProjectModal({
               required
             />
           </div>
-
           <div>
             <Label htmlFor="client">Client</Label>
             <Input
@@ -101,7 +92,6 @@ export function AddProjectModal({
               required
             />
           </div>
-
           <div>
             <Label htmlFor="expectedIncome">Expected Income (₱)</Label>
             <Input
@@ -114,12 +104,10 @@ export function AddProjectModal({
               required
             />
           </div>
-
           <div>
             <Label htmlFor="timeline">Timeline</Label>
             <Input
               id="timeline"
-              placeholder="e.g., 2024-07-01 to 2024-08-31"
               value={formData.timeline}
               onChange={(e) =>
                 setFormData({ ...formData, timeline: e.target.value })
@@ -127,7 +115,6 @@ export function AddProjectModal({
               required
             />
           </div>
-
           <div>
             <Label htmlFor="type">Type</Label>
             <Select
@@ -145,7 +132,6 @@ export function AddProjectModal({
               </SelectContent>
             </Select>
           </div>
-
           <div>
             <Label htmlFor="description">Description (Optional)</Label>
             <Textarea
@@ -154,10 +140,8 @@ export function AddProjectModal({
               onChange={(e) =>
                 setFormData({ ...formData, description: e.target.value })
               }
-              rows={3}
             />
           </div>
-
           <div className="flex space-x-2 pt-4">
             <Button
               type="button"
@@ -171,7 +155,7 @@ export function AddProjectModal({
               type="submit"
               className="flex-1 bg-blue-600 hover:bg-blue-700"
             >
-              Add Project
+              Update Project
             </Button>
           </div>
         </form>
