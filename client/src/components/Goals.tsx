@@ -1,56 +1,65 @@
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Target, Calendar, TrendingUp, AlertCircle } from "lucide-react";
-import { useState } from "react";
 import { AddGoalModal } from "@/components/AddGoalModal";
+import { Pencil, Trash2 } from "lucide-react";
 
-const mockGoals = [
-  {
-    id: 1,
-    title: "Emergency Fund",
-    description: "Build 6-month emergency fund",
-    targetAmount: 300000,
-    currentAmount: 180000,
-    deadline: "2024-12-31",
-    category: "Savings",
-    status: "active"
-  },
-  {
-    id: 2,
-    title: "New Equipment",
-    description: "Save for new camera equipment",
-    targetAmount: 150000,
-    currentAmount: 97500,
-    deadline: "2024-09-30",
-    category: "Equipment",
-    status: "active"
-  },
-  {
-    id: 3,
-    title: "Monthly Income Target",
-    description: "Reach ₱200k monthly income",
-    targetAmount: 200000,
-    currentAmount: 140000,
-    deadline: "2024-08-31",
-    category: "Income",
-    status: "active"
-  },
-  {
-    id: 4,
-    title: "Vacation Fund",
-    description: "Save for Japan trip",
-    targetAmount: 100000,
-    currentAmount: 100000,
-    deadline: "2024-06-30",
-    category: "Personal",
-    status: "completed"
-  },
-];
+// const mockGoals = [
+//   {
+//     id: 1,
+//     title: "Emergency Fund",
+//     description: "Build 6-month emergency fund",
+//     targetAmount: 300000,
+//     currentAmount: 180000,
+//     deadline: "2024-12-31",
+//     category: "Savings",
+//     status: "active"
+//   },
+//   {
+//     id: 2,
+//     title: "New Equipment",
+//     description: "Save for new camera equipment",
+//     targetAmount: 150000,
+//     currentAmount: 97500,
+//     deadline: "2024-09-30",
+//     category: "Equipment",
+//     status: "active"
+//   },
+//   {
+//     id: 3,
+//     title: "Monthly Income Target",
+//     description: "Reach ₱200k monthly income",
+//     targetAmount: 200000,
+//     currentAmount: 140000,
+//     deadline: "2024-08-31",
+//     category: "Income",
+//     status: "active"
+//   },
+//   {
+//     id: 4,
+//     title: "Vacation Fund",
+//     description: "Save for Japan trip",
+//     targetAmount: 100000,
+//     currentAmount: 100000,
+//     deadline: "2024-06-30",
+//     category: "Personal",
+//     status: "completed"
+//   },
+// ];
 
 export function Goals() {
+  const [goals, setGoals] = useState([]);
   const [isAddGoalOpen, setIsAddGoalOpen] = useState(false);
+
+  useEffect(() => {
+    fetch("http://localhost:4000/api/goals")
+      .then((res) => res.json())
+      .then((data) => setGoals(data))
+      .catch((err) => console.error("Failed to fetch goals:", err));
+  }, []);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -86,6 +95,25 @@ export function Goals() {
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     return diffDays;
   };
+  const handleDelete = async (id: number) => {
+    const confirmed = window.confirm("Are you sure you want to delete this goal?");
+    if (!confirmed) return;
+  
+    await fetch(`http://localhost:4000/api/goals/${id}`, {
+      method: "DELETE",
+    });
+  
+    setGoals((prev) => prev.filter((goal) => goal.id !== id));
+  };
+  
+  const handleEdit = (goal: any) => {
+    setEditingGoal(goal);
+    setIsAddGoalOpen(true);
+  };
+  
+  const [editingGoal, setEditingGoal] = useState(null);
+
+
 
   return (
     <div className="space-y-6">
@@ -104,7 +132,7 @@ export function Goals() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {mockGoals.map((goal) => {
+        {goals.map((goal) => {
           const progress = calculateProgress(goal.currentAmount, goal.targetAmount);
           const daysRemaining = getDaysRemaining(goal.deadline);
           const remaining = goal.targetAmount - goal.currentAmount;
@@ -112,22 +140,27 @@ export function Goals() {
           return (
             <Card key={goal.id} className="bg-white shadow-sm hover:shadow-md transition-shadow">
               <CardHeader className="pb-3">
-                <div className="flex justify-between items-start">
-                  <div className="flex items-center space-x-2">
-                    <Target className="h-5 w-5 text-blue-600" />
-                    <CardTitle className="text-lg text-gray-900">{goal.title}</CardTitle>
-                  </div>
-                  <div className="flex space-x-2">
-                    <Badge className={getCategoryColor(goal.category)}>
-                      {goal.category}
-                    </Badge>
-                    <Badge className={getStatusColor(goal.status)}>
-                      {goal.status}
-                    </Badge>
-                  </div>
+              <div className="flex justify-between items-start">
+                <div className="flex items-center space-x-2">
+                  <CardTitle className="text-lg text-gray-900">{goal.title}</CardTitle>
+                  <Badge className={getCategoryColor(goal.category)}>
+                    {goal.category}
+                  </Badge>
+                  <Badge className={getStatusColor(goal.status)}>
+                    {goal.status}
+                  </Badge>
                 </div>
-                <p className="text-sm text-gray-600 mt-2">{goal.description}</p>
-              </CardHeader>
+                <div className="flex space-x-2">
+                  <Button size="icon" variant="ghost" onClick={() => handleEdit(goal)}>
+                    <Pencil className="h-4 w-4 text-blue-600" />
+                  </Button>
+                  <Button size="icon" variant="ghost" onClick={() => handleDelete(goal.id)}>
+                    <Trash2 className="h-4 w-4 text-red-600" />
+                  </Button>
+                </div>
+              </div>
+              <p className="text-sm text-gray-600 mt-2">{goal.description}</p>
+            </CardHeader>
               
               <CardContent className="space-y-4">
                 <div className="space-y-2">
@@ -193,10 +226,22 @@ export function Goals() {
         })}
       </div>
 
-      <AddGoalModal 
-        isOpen={isAddGoalOpen}
-        onClose={() => setIsAddGoalOpen(false)}
-      />
+      <AddGoalModal
+      isOpen={isAddGoalOpen}
+      onClose={() => {
+        setIsAddGoalOpen(false);
+        setEditingGoal(null); // clear editing state when closing
+      }}
+      editingGoal={editingGoal}
+      onAddGoal={(newGoal) => setGoals((prev) => [...prev, newGoal])}
+      onUpdateGoal={(updatedGoal) =>
+        setGoals((prev) =>
+          prev.map((goal) =>
+            goal.id === updatedGoal.id ? updatedGoal : goal
+      )
+    )
+  }
+/>
     </div>
   );
 }
