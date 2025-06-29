@@ -1,73 +1,44 @@
-# Welcome to your Lovable project
+🎯 Financial Goals Module - Feature Overview
+Manage and track your financial aspirations with ease and intelligence.
 
-## Project info
+✅ Key Features
+Add and manage multiple financial goals
+Set as many goals as you want, from savings to investments.
 
-**URL**: https://lovable.dev/projects/516411fe-c744-4718-a274-aca21affcec5
+📊 Visual progress tracking for each goal
+See how close you are to hitting your targets through intuitive visuals.
 
-## How can I edit this code?
+🗓️ Deadline & Time Remaining Insights
+Stay on top of your goals with automatic countdowns and due date reminders.
 
-There are several ways of editing your application.
+💡 Smart Weekly Saving Recommendations
+Get personalized suggestions based on your target amount, deadline, and income.
 
-**Use Lovable**
+📝 Edit or Delete Goals Anytime
+Keep your goals flexible and up to date.
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/516411fe-c744-4718-a274-aca21affcec5) and start prompting.
+🧠 Goal Categorization
+Classify goals as Savings, Income, Equipment, Business, and more for better organization.
 
-Changes made via Lovable will be committed automatically to this repo.
+🔒 Persistent Data Storage
+All your data is securely stored and synced through a backend API.
 
-**Use your preferred IDE**
+🧱 Tech Stack
+Frontend
+React
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+TypeScript
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+TailwindCSS
 
-Follow these steps:
+ShadCN UI
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+Lucide Icons
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+Backend
+Node.js
 
-# Step 3: Install the necessary dependencies.
-npm i
+Express.js
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
-
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/516411fe-c744-4718-a274-aca21affcec5) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+Database
+MongoDB

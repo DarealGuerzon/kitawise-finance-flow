@@ -16,7 +16,7 @@ export function Projects() {
   }, []);
 
   const getStatusColor = (status: string) => {
-    switch (status) {
+    switch (status?.toLowerCase()) {
       case "completed":
         return "bg-green-100 text-green-800 dark:bg-green-800/20 dark:text-green-400";
       case "active":
@@ -30,6 +30,11 @@ export function Projects() {
     if (profitability >= 100) return "text-green-600 dark:text-green-400";
     if (profitability >= 80) return "text-yellow-600 dark:text-yellow-400";
     return "text-red-600 dark:text-red-400";
+  };
+
+  const calculateProfitability = (expected: number, actual: number) => {
+    if (!expected || expected === 0) return 0;
+    return Math.round((actual / expected) * 100);
   };
 
   const handleAddProject = async (newProject: any) => {
@@ -70,75 +75,92 @@ export function Projects() {
 
       {/* Projects Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-        {projects.map((project) => (
-          <Card
-            key={project._id}
-            className="border border-border hover:shadow-md transition-shadow"
-          >
-            <CardHeader className="pb-3">
-              <div className="flex justify-between items-start">
-                <CardTitle className="text-lg">{project.name}</CardTitle>
-                <div className="flex items-center space-x-2">
-                  <Badge className={getStatusColor(project.status)}>
-                    {project.status}
-                  </Badge>
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    onClick={() => handleEdit(project)}
-                  >
-                    <Pencil className="h-4 w-4 text-muted-foreground" />
-                  </Button>
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    onClick={() => handleDelete(project._id)}
-                  >
-                    <Trash2 className="h-4 w-4 text-muted-foreground" />
-                  </Button>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {/* Client */}
-              <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                <User className="h-4 w-4" />
-                <span>{project.client}</span>
-              </div>
+        {projects.map((project) => {
+          const profitability = calculateProfitability(project.expectedIncome, project.actualIncome);
 
-              {/* Timeline */}
-              <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                <Calendar className="h-4 w-4" />
-                <span>{project.timeline}</span>
-              </div>
-
-              {/* Income */}
-              <div className="space-y-2">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-muted-foreground">Expected Income:</span>
-                  <span className="font-medium">₱{project.expectedIncome?.toLocaleString()}</span>
+          return (
+            <Card
+              key={project._id}
+              className="border border-border hover:shadow-md transition-shadow"
+            >
+              <CardHeader className="pb-1">
+                <div className="flex justify-between items-start">
+                  <CardTitle className="text-lg">{project.name}</CardTitle>
+                  <div className="flex items-center space-x-2">
+                    <Badge className={getStatusColor(project.status)}>
+                      {project.status || "Unknown"}
+                    </Badge>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      onClick={() => handleEdit(project)}
+                    >
+                      <Pencil className="h-4 w-4 text-muted-foreground" />
+                    </Button>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      onClick={() => handleDelete(project._id)}
+                    >
+                      <Trash2 className="h-4 w-4 text-muted-foreground" />
+                    </Button>
+                  </div>
                 </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-muted-foreground">Actual Income:</span>
-                  <span className="font-medium">₱{project.actualIncome?.toLocaleString()}</span>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {/* Client */}
+                <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+                  <User className="h-4 w-4" />
+                  <span>{project.client}</span>
                 </div>
-              </div>
 
-              {/* Profitability */}
-              {project.status === "completed" && (
+                {/* Timeline */}
+                <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+                  <Calendar className="h-4 w-4" />
+                    <span>
+                      {project.date ? new Date(project.date).toISOString().split("T")[0] : "No date"}
+                    </span>
+                </div>
+
+                {/* Income */}
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">Expected Income:</span>
+                    <span className="font-medium">
+                      ₱{project.expectedIncome?.toLocaleString()}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-muted-foreground">Actual Income:</span>
+                    <span className="font-medium">
+                      ₱{project.actualIncome?.toLocaleString()}
+                    </span>
+                  </div>
+                </div>
+
+                {project.description?.trim() && (
+                  <div className="pt-2 border-t border-border text-sm text-muted-foreground whitespace-pre-line">
+                    {project.description}
+                  </div>
+                )}
+
+                {/* Profitability */}
+                
                 <div className="flex items-center justify-between pt-2 border-t border-border">
                   <div className="flex items-center space-x-1">
                     <TrendingUp className="h-4 w-4 text-muted-foreground" />
                     <span className="text-sm text-muted-foreground">Profitability:</span>
-                  </div>
-                  <span className={`font-bold ${getProfitabilityColor(project.profitability)}`}>
-                    {project.profitability}%
-                  </span>
+                    </div>
+                    <span className={`font-bold ${getProfitabilityColor(profitability)}`}>
+                      {profitability}%
+                    </span>
                 </div>
-              )}
-            </CardContent>
-          </Card>
-        ))}
+
+
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
 
       {/* Modal */}

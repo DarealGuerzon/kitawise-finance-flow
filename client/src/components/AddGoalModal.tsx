@@ -22,8 +22,8 @@ interface AddGoalModalProps {
   isOpen: boolean;
   onClose: () => void;
   onAddGoal: (goal: any) => void;
-  onUpdateGoal: (updatedGoal: any) => void; // ✅ Added for updating goals
-  editingGoal?: any; // ✅ Added for editing mode
+  onUpdateGoal: (updatedGoal: any) => void;
+  editingGoal?: any;
 }
 
 const categories = [
@@ -40,7 +40,7 @@ export function AddGoalModal({
   onClose,
   onAddGoal,
   onUpdateGoal,
-  editingGoal, 
+  editingGoal,
 }: AddGoalModalProps) {
   const [formData, setFormData] = useState({
     title: "",
@@ -49,9 +49,10 @@ export function AddGoalModal({
     currentAmount: "0",
     deadline: "",
     category: "",
+    status: "active", // 🆕 Added default status
   });
 
-  // ✅ Prefill form when editingGoal changes
+  // Prefill form when editingGoal changes
   useEffect(() => {
     if (editingGoal) {
       setFormData({
@@ -61,6 +62,7 @@ export function AddGoalModal({
         currentAmount: editingGoal.currentAmount.toString(),
         deadline: editingGoal.deadline || "",
         category: editingGoal.category || "",
+        status: editingGoal.status || "active", // 🆕 Fill status
       });
     } else {
       setFormData({
@@ -70,6 +72,7 @@ export function AddGoalModal({
         currentAmount: "0",
         deadline: "",
         category: "",
+        status: "active", // 🆕 Reset status
       });
     }
   }, [editingGoal, isOpen]);
@@ -81,19 +84,17 @@ export function AddGoalModal({
       ...formData,
       targetAmount: parseFloat(formData.targetAmount),
       currentAmount: parseFloat(formData.currentAmount),
-      status: editingGoal?.status || "active",
+      status: formData.status, // 🆕 Use selected status
     };
 
     try {
       if (editingGoal) {
-        // For editing, you can keep the direct API call or use a prop like onUpdateGoal
         await onUpdateGoal({ ...goalData, _id: editingGoal._id });
         toast({
           title: "Goal Updated",
           description: `${goalData.title} has been updated successfully.`,
         });
       } else {
-        // For adding, just call the parent handler
         await onAddGoal(goalData);
         toast({
           title: "Goal Created",
@@ -109,6 +110,7 @@ export function AddGoalModal({
         currentAmount: "0",
         deadline: "",
         category: "",
+        status: "active", // 🆕 Reset status
       });
     } catch (error) {
       console.error("Error saving goal:", error);
@@ -177,6 +179,25 @@ export function AddGoalModal({
             </Select>
           </div>
 
+          {/* 🆕 Status Select */}
+          <div>
+            <Label htmlFor="status">Status</Label>
+            <Select
+              value={formData.status}
+              onValueChange={(value) =>
+                setFormData({ ...formData, status: value })
+              }
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="active">Active</SelectItem>
+                <SelectItem value="completed">Completed</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
           <div className="grid grid-cols-2 gap-3">
             <div>
               <Label htmlFor="currentAmount">Current Amount (₱)</Label>
@@ -237,7 +258,6 @@ export function AddGoalModal({
               className="flex-1 bg-blue-600 hover:bg-blue-700 dark:text-foreground"
             >
               {editingGoal ? "Update Goal" : "Create Goal"}
-              
             </Button>
           </div>
         </form>
