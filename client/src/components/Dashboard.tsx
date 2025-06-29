@@ -1,30 +1,85 @@
-
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
+import { useEffect, useState } from "react";
+import { fetchExpenses, fetchProjects } from "@/lib/api";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+} from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DollarSign, TrendingUp, Target, AlertTriangle } from "lucide-react";
 
-const monthlyData = [
-  { month: "Jan", income: 65000, expenses: 45000 },
-  { month: "Feb", income: 80000, expenses: 52000 },
-  { month: "Mar", income: 95000, expenses: 48000 },
-  { month: "Apr", income: 110000, expenses: 65000 },
-  { month: "May", income: 125000, expenses: 58000 },
-  { month: "Jun", income: 140000, expenses: 72000 },
-];
-
-const expenseData = [
-  { name: "Software Tools", value: 25000, color: "#4CAF50" },
-  { name: "Equipment", value: 18000, color: "#2196F3" },
-  { name: "Transport", value: 12000, color: "#FF9800" },
-  { name: "Marketing", value: 8000, color: "#9C27B0" },
-  { name: "Other", value: 5000, color: "#607D8B" },
-];
-
 export function Dashboard() {
-  const totalIncome = 140000;
-  const totalExpenses = 72000;
+  const [expenses, setExpenses] = useState<any[]>([]);
+  const [projects, setProjects] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetchExpenses().then(setExpenses);
+    fetchProjects().then(setProjects);
+  }, []);
+
+  const totalIncome = projects.reduce((sum, p) => sum + (p.actualIncome || 0), 0);
+  const totalExpenses = expenses.reduce((sum, e) => sum + e.amount, 0);
   const netProfit = totalIncome - totalExpenses;
-  const goalProgress = 65; // percentage
+  const goalProgress = 65; // Static for now, can be fetched later
+
+  const barChartData = generateMonthlyData(expenses, projects);
+
+  const expenseData = Object.entries(
+    expenses.reduce((acc: any, curr) => {
+      if (!acc[curr.category]) acc[curr.category] = 0;
+      acc[curr.category] += curr.amount;
+      return acc;
+    }, {})
+  ).map(([name, value]) => ({
+    name,
+    value,
+    color: getCategoryColor(name),
+  }));
+
+  function getCategoryColor(category: string) {
+    const colors: { [key: string]: string } = {
+      "Software Tools": "#4CAF50",
+      Equipment: "#2196F3",
+      Transport: "#FF9800",
+      Marketing: "#9C27B0",
+      Office: "#795548",
+      Utilities: "#E91E63",
+      Other: "#607D8B",
+    };
+    return colors[category] || "#9E9E9E";
+  }
+
+  function generateMonthlyData(expenses: any[], projects: any[]) {
+    const months = [
+      "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+    ];
+    const currentYear = new Date().getFullYear();
+
+    return months.map((month, index) => {
+      const monthExpenses = expenses.filter((e) => {
+        const date = new Date(e.date);
+        return date.getMonth() === index && date.getFullYear() === currentYear;
+      });
+
+      const monthProjects = projects.filter((p) => {
+        const date = new Date(p.date || p.createdAt);
+        return date.getMonth() === index && date.getFullYear() === currentYear;
+      });
+
+      const income = monthProjects.reduce((sum, p) => sum + (p.actualIncome || 0), 0);
+      const expense = monthExpenses.reduce((sum, e) => sum + e.amount, 0);
+
+      return { month, income, expenses: expense };
+    });
+  }
 
   return (
     <div className="space-y-6">
@@ -32,40 +87,50 @@ export function Dashboard() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <Card className="border border-border">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Total Income</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Total Income
+            </CardTitle>
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">₱{totalIncome.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground mt-1">+12% from last month</p>
+            <p className="text-xs text-muted-foreground mt-1">From Projects</p>
           </CardContent>
         </Card>
 
         <Card className="border border-border">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Total Expenses</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Total Expenses
+            </CardTitle>
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">₱{totalExpenses.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground mt-1">+8% from last month</p>
+            <p className="text-xs text-muted-foreground mt-1">Total spending</p>
           </CardContent>
         </Card>
 
         <Card className="border border-border">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Net Profit</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Net Profit
+            </CardTitle>
             <Target className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">₱{netProfit.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground mt-1">Profit margin: 49%</p>
+            <p className="text-xs text-muted-foreground mt-1">
+              Profit margin: {((netProfit / totalIncome) * 100 || 0).toFixed(0)}%
+            </p>
           </CardContent>
         </Card>
 
         <Card className="border border-border">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Goal Progress</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Goal Progress
+            </CardTitle>
             <AlertTriangle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -83,16 +148,16 @@ export function Dashboard() {
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={monthlyData}>
+              <BarChart data={barChartData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                 <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" />
                 <YAxis stroke="hsl(var(--muted-foreground))" />
-                <Tooltip 
+                <Tooltip
                   formatter={(value: number) => [`₱${value.toLocaleString()}`, ""]}
-                  contentStyle={{ 
-                    backgroundColor: "hsl(var(--background))", 
+                  contentStyle={{
+                    backgroundColor: "hsl(var(--background))",
                     border: "1px solid hsl(var(--border))",
-                    borderRadius: "6px"
+                    borderRadius: "6px",
                   }}
                 />
                 <Bar dataKey="income" fill="#4CAF50" name="Income" />
@@ -121,12 +186,12 @@ export function Dashboard() {
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
-                <Tooltip 
-                  formatter={(value: number) => [`₱${value.toLocaleString()}`, ""]} 
-                  contentStyle={{ 
-                    backgroundColor: "hsl(var(--background))", 
+                <Tooltip
+                  formatter={(value: number) => [`₱${value.toLocaleString()}`, ""]}
+                  contentStyle={{
+                    backgroundColor: "hsl(var(--background))",
                     border: "1px solid hsl(var(--border))",
-                    borderRadius: "6px"
+                    borderRadius: "6px",
                   }}
                 />
               </PieChart>
@@ -146,20 +211,17 @@ export function Dashboard() {
         <CardContent className="space-y-3">
           <div className="bg-muted/50 p-4 rounded-lg border border-border">
             <p className="text-sm">
-              💡 <strong>Opportunity:</strong> Your "Mobile App" project is performing 107% above expectations. 
-              Consider taking on 2 more similar projects to boost income by ₱150,000 this quarter.
+              💡 <strong>Opportunity:</strong> Consider taking on 2 more similar projects to boost income by ₱150,000 this quarter.
             </p>
           </div>
           <div className="bg-muted/50 p-4 rounded-lg border border-border">
             <p className="text-sm">
-              ⚠️ <strong>Budget Alert:</strong> Software tool expenses increased by 15% this month. 
-              Review subscriptions and consider bundling tools to save ₱8,000/month.
+              ⚠️ <strong>Budget Alert:</strong> Review subscriptions and consider bundling tools to save ₱8,000/month.
             </p>
           </div>
           <div className="bg-muted/50 p-4 rounded-lg border border-border">
             <p className="text-sm">
-              🎯 <strong>Goal Tracking:</strong> You're 65% toward your ₱100,000 savings goal. 
-              To reach it by month-end, save ₱8,750 weekly or take on one additional ₱25,000 project.
+              🎯 <strong>Goal Tracking:</strong> You're 65% toward your ₱100,000 savings goal. To reach it by month-end, save ₱8,750 weekly.
             </p>
           </div>
         </CardContent>

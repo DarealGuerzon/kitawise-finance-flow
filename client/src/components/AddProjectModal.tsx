@@ -14,14 +14,20 @@ interface AddProjectModalProps {
   editingProject?: any;
 }
 
-export function AddProjectModal({ isOpen, onClose, onAddProject, onUpdateProject, editingProject }: AddProjectModalProps) {
+export function AddProjectModal({
+  isOpen,
+  onClose,
+  onAddProject,
+  onUpdateProject,
+  editingProject,
+}: AddProjectModalProps) {
   const [formData, setFormData] = useState({
     name: "",
     client: "",
     expectedIncome: "",
     actualIncome: "",
-    timeline: "",
-    description: ""
+    date: "",
+    description: "",
   });
 
   useEffect(() => {
@@ -31,8 +37,9 @@ export function AddProjectModal({ isOpen, onClose, onAddProject, onUpdateProject
         client: editingProject.client || "",
         expectedIncome: editingProject.expectedIncome?.toString() || "",
         actualIncome: editingProject.actualIncome?.toString() || "",
-        timeline: editingProject.timeline || "",
-        description: editingProject.description || ""
+        // 🔄 CHANGED: Use `date` instead of timeline
+        date: editingProject.date?.split("T")[0] || "", // format YYYY-MM-DD
+        description: editingProject.description || "",
       });
     } else {
       setFormData({
@@ -40,41 +47,38 @@ export function AddProjectModal({ isOpen, onClose, onAddProject, onUpdateProject
         client: "",
         expectedIncome: "",
         actualIncome: "",
-        timeline: "",
-        description: ""
+        date: "", // 🆕 ADDED
+        description: "",
       });
     }
   }, [editingProject, isOpen]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const projectPayload = {
+      ...editingProject,
+      name: formData.name,
+      client: formData.client,
+      expectedIncome: Number(formData.expectedIncome),
+      actualIncome: Number(formData.actualIncome),
+      // 🆕 ADDED
+      date: formData.date,
+      description: formData.description,
+    };
+
     if (editingProject && onUpdateProject) {
-      onUpdateProject({
-        ...editingProject,
-        name: formData.name,
-        client: formData.client,
-        expectedIncome: Number(formData.expectedIncome),
-        actualIncome: Number(formData.actualIncome),
-        timeline: formData.timeline,
-        description: formData.description,
-      });
+      onUpdateProject(projectPayload);
     } else if (onAddProject) {
-      onAddProject({
-        name: formData.name,
-        client: formData.client,
-        expectedIncome: Number(formData.expectedIncome),
-        actualIncome: Number(formData.actualIncome),
-        timeline: formData.timeline,
-        description: formData.description,
-      });
+      onAddProject(projectPayload);
     }
+
     setFormData({
       name: "",
       client: "",
       expectedIncome: "",
       actualIncome: "",
-      timeline: "",
-      description: ""
+      date: "", // 🆕 ADDED
+      description: "",
     });
     onClose();
   };
@@ -92,7 +96,7 @@ export function AddProjectModal({ isOpen, onClose, onAddProject, onUpdateProject
             <Input
               id="name"
               value={formData.name}
-              onChange={(e) => setFormData({...formData, name: e.target.value})}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               required
             />
           </div>
@@ -102,7 +106,7 @@ export function AddProjectModal({ isOpen, onClose, onAddProject, onUpdateProject
             <Input
               id="client"
               value={formData.client}
-              onChange={(e) => setFormData({...formData, client: e.target.value})}
+              onChange={(e) => setFormData({ ...formData, client: e.target.value })}
               required
             />
           </div>
@@ -113,7 +117,7 @@ export function AddProjectModal({ isOpen, onClose, onAddProject, onUpdateProject
               id="expectedIncome"
               type="number"
               value={formData.expectedIncome}
-              onChange={(e) => setFormData({...formData, expectedIncome: e.target.value})}
+              onChange={(e) => setFormData({ ...formData, expectedIncome: e.target.value })}
               required
             />
           </div>
@@ -124,18 +128,19 @@ export function AddProjectModal({ isOpen, onClose, onAddProject, onUpdateProject
               id="actualIncome"
               type="number"
               value={formData.actualIncome}
-              onChange={(e) => setFormData({...formData, actualIncome: e.target.value})}
+              onChange={(e) => setFormData({ ...formData, actualIncome: e.target.value })}
               required
             />
           </div>
 
+          {/* 🔄 CHANGED: Use a date picker instead of a free text timeline */}
           <div>
-            <Label htmlFor="timeline">Timeline</Label>
+            <Label htmlFor="date">Project Date</Label>
             <Input
-              id="timeline"
-              placeholder="e.g., 2024-07-01 to 2024-08-31"
-              value={formData.timeline}
-              onChange={(e) => setFormData({...formData, timeline: e.target.value})}
+              id="date"
+              type="date"
+              value={formData.date}
+              onChange={(e) => setFormData({ ...formData, date: e.target.value })}
               required
             />
           </div>
@@ -145,7 +150,7 @@ export function AddProjectModal({ isOpen, onClose, onAddProject, onUpdateProject
             <Textarea
               id="description"
               value={formData.description}
-              onChange={(e) => setFormData({...formData, description: e.target.value})}
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               rows={3}
             />
           </div>

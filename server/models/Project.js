@@ -5,7 +5,7 @@ const projectSchema = new mongoose.Schema({
   client: String,
   expectedIncome: Number,
   actualIncome: Number,
-  timeline: String,
+  date: Date,
   status: String,
   profitability: Number,
 });

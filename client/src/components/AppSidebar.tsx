@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Folder, Plus, DollarSign } from "lucide-react";
 import {
   Sidebar,
@@ -9,22 +9,32 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarTrigger,
   useSidebar,
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { AddProjectModal } from "@/components/AddProjectModal";
-
-const mockProjects = [
-  { id: 1, name: "Website Design", client: "ABC Corp", income: 45000, expected: 50000 },
-  { id: 2, name: "Mobile App", client: "XYZ Ltd", income: 80000, expected: 75000 },
-  { id: 3, name: "Logo Design", client: "StartupCo", income: 15000, expected: 20000 },
-];
+import { fetchProjects, addProject } from "@/lib/api";
 
 export function AppSidebar() {
   const { state } = useSidebar();
   const isCollapsed = state === "collapsed";
   const [isAddProjectOpen, setIsAddProjectOpen] = useState(false);
+  const [projects, setProjects] = useState<any[]>([]);
+
+  // ✅ Fetch projects on load
+  useEffect(() => {
+    fetchProjects().then(setProjects);
+  }, []);
+
+  // ✅ Handle project add
+  const handleAddProject = async (newProject: any) => {
+    try {
+      const saved = await addProject(newProject);
+      setProjects((prev) => [...prev, saved]);
+    } catch (err) {
+      console.error("Failed to add project:", err);
+    }
+  };
 
   return (
     <>
@@ -58,8 +68,8 @@ export function AppSidebar() {
 
             <SidebarGroupContent>
               <SidebarMenu>
-                {mockProjects.map((project) => (
-                  <SidebarMenuItem key={project.id}>
+                {projects.map((project) => (
+                  <SidebarMenuItem key={project._id}>
                     <SidebarMenuButton className="text-sidebar-foreground/80 hover:text-sidebar-foreground hover:bg-sidebar-accent">
                       <Folder className="h-4 w-4 text-sidebar-foreground/60" />
                       {!isCollapsed && (
@@ -77,9 +87,11 @@ export function AppSidebar() {
         </SidebarContent>
       </Sidebar>
 
+      {/* 🆕 Pass the handler here */}
       <AddProjectModal 
         isOpen={isAddProjectOpen}
         onClose={() => setIsAddProjectOpen(false)}
+        onAddProject={handleAddProject}
       />
     </>
   );
