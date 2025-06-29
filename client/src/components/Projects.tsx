@@ -1,56 +1,20 @@
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Calendar, DollarSign, User, TrendingUp } from "lucide-react";
+import { Plus, Calendar, DollarSign, User, TrendingUp, Pencil, Trash2 } from "lucide-react";
 import { AddProjectModal } from "@/components/AddProjectModal";
-
-const mockProjects = [
-  {
-    id: 1,
-    name: "Website Design",
-    client: "ABC Corp",
-    expectedIncome: 50000,
-    actualIncome: 45000,
-    timeline: "2024-01-15 to 2024-02-28",
-    status: "completed",
-    profitability: 90
-  },
-  {
-    id: 2,
-    name: "Mobile App Development",
-    client: "XYZ Ltd",
-    expectedIncome: 75000,
-    actualIncome: 80000,
-    timeline: "2024-02-01 to 2024-04-30",
-    status: "completed",
-    profitability: 107
-  },
-  {
-    id: 3,
-    name: "Logo Design",
-    client: "StartupCo",
-    expectedIncome: 20000,
-    actualIncome: 15000,
-    timeline: "2024-03-01 to 2024-03-15",
-    status: "completed",
-    profitability: 75
-  },
-  {
-    id: 4,
-    name: "E-commerce Platform",
-    client: "RetailMax",
-    expectedIncome: 120000,
-    actualIncome: 0,
-    timeline: "2024-06-01 to 2024-08-31",
-    status: "active",
-    profitability: 0
-  },
-];
+import { fetchProjects, addProject, updateProject, deleteProject } from "@/lib/api";
 
 export function Projects() {
+  const [projects, setProjects] = useState<any[]>([]);
   const [isAddProjectOpen, setIsAddProjectOpen] = useState(false);
+  const [editingProject, setEditingProject] = useState<any>(null);
+
+  // Fetch projects on mount
+  useEffect(() => {
+    fetchProjects().then(setProjects);
+  }, []);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -67,6 +31,31 @@ export function Projects() {
     if (profitability >= 100) return "text-green-600";
     if (profitability >= 80) return "text-yellow-600";
     return "text-red-600";
+  };
+
+  // Add project using API
+  const handleAddProject = async (newProject: any) => {
+    const created = await addProject(newProject);
+    setProjects(prev => [...prev, created]);
+  };
+
+  // Update project using API
+  const handleUpdateProject = async (updatedProject: any) => {
+    const updated = await updateProject(updatedProject._id || updatedProject.id, updatedProject);
+    setProjects(prev => prev.map(project => (project._id === updated._id ? updated : project)));
+  };
+
+  // Delete project using API
+  const handleDelete = async (id: string) => {
+    const confirmed = window.confirm("Are you sure you want to delete this project?");
+    if (!confirmed) return;
+    await deleteProject(id);
+    setProjects(prev => prev.filter(project => project._id !== id));
+  };
+
+  const handleEdit = (project: any) => {
+    setEditingProject(project);
+    setIsAddProjectOpen(true);
   };
 
   return (
@@ -86,14 +75,22 @@ export function Projects() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-        {mockProjects.map((project) => (
-          <Card key={project.id} className="bg-white shadow-sm hover:shadow-md transition-shadow">
+        {projects.map((project) => (
+          <Card key={project._id} className="bg-white shadow-sm hover:shadow-md transition-shadow">
             <CardHeader className="pb-3">
               <div className="flex justify-between items-start">
                 <CardTitle className="text-lg text-gray-900">{project.name}</CardTitle>
-                <Badge className={getStatusColor(project.status)}>
-                  {project.status}
-                </Badge>
+                <div className="flex items-center space-x-2">
+                  <Badge className={getStatusColor(project.status)}>
+                    {project.status}
+                  </Badge>
+                  <Button size="icon" variant="ghost" onClick={() => handleEdit(project)}>
+                    <Pencil className="h-4 w-4 text-blue-600" />
+                  </Button>
+                  <Button size="icon" variant="ghost" onClick={() => handleDelete(project._id)}>
+                    <Trash2 className="h-4 w-4 text-red-600" />
+                  </Button>
+                </div>
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -110,11 +107,11 @@ export function Projects() {
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-gray-600">Expected Income:</span>
-                  <span className="font-medium text-gray-900">₱{project.expectedIncome.toLocaleString()}</span>
+                  <span className="font-medium text-gray-900">₱{project.expectedIncome?.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-gray-600">Actual Income:</span>
-                  <span className="font-medium text-gray-900">₱{project.actualIncome.toLocaleString()}</span>
+                  <span className="font-medium text-gray-900">₱{project.actualIncome?.toLocaleString()}</span>
                 </div>
               </div>
 
@@ -136,7 +133,13 @@ export function Projects() {
 
       <AddProjectModal 
         isOpen={isAddProjectOpen}
-        onClose={() => setIsAddProjectOpen(false)}
+        onClose={() => {
+          setIsAddProjectOpen(false);
+          setEditingProject(null);
+        }}
+        onAddProject={handleAddProject}
+        onUpdateProject={handleUpdateProject}
+        editingProject={editingProject}
       />
     </div>
   );

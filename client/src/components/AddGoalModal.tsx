@@ -1,64 +1,132 @@
-
-import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useState, useEffect } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
 
 interface AddGoalModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onAddGoal: (goal: any) => void;
+  onUpdateGoal: (updatedGoal: any) => void; // ✅ Added for updating goals
+  editingGoal?: any; // ✅ Added for editing mode
 }
 
 const categories = [
   "Savings",
-  "Equipment", 
+  "Equipment",
   "Income",
   "Personal",
   "Business",
-  "Investment"
+  "Investment",
 ];
 
-export function AddGoalModal({ isOpen, onClose }: AddGoalModalProps) {
+export function AddGoalModal({
+  isOpen,
+  onClose,
+  onAddGoal,
+  onUpdateGoal,
+  editingGoal, 
+}: AddGoalModalProps) {
   const [formData, setFormData] = useState({
     title: "",
     description: "",
     targetAmount: "",
     currentAmount: "0",
     deadline: "",
-    category: ""
+    category: "",
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    console.log("New goal:", formData);
-    
-    toast({
-      title: "Goal Created",
-      description: `${formData.title} goal has been set successfully.`,
-    });
+  // ✅ Prefill form when editingGoal changes
+  useEffect(() => {
+    if (editingGoal) {
+      setFormData({
+        title: editingGoal.title || "",
+        description: editingGoal.description || "",
+        targetAmount: editingGoal.targetAmount.toString(),
+        currentAmount: editingGoal.currentAmount.toString(),
+        deadline: editingGoal.deadline || "",
+        category: editingGoal.category || "",
+      });
+    } else {
+      setFormData({
+        title: "",
+        description: "",
+        targetAmount: "",
+        currentAmount: "0",
+        deadline: "",
+        category: "",
+      });
+    }
+  }, [editingGoal, isOpen]);
 
-    // Reset form and close modal
-    setFormData({
-      title: "",
-      description: "",
-      targetAmount: "",
-      currentAmount: "0",
-      deadline: "",
-      category: ""
-    });
-    onClose();
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const goalData = {
+      ...formData,
+      targetAmount: parseFloat(formData.targetAmount),
+      currentAmount: parseFloat(formData.currentAmount),
+      status: editingGoal?.status || "active",
+    };
+
+    try {
+      if (editingGoal) {
+        // For editing, you can keep the direct API call or use a prop like onUpdateGoal
+        await onUpdateGoal({ ...goalData, _id: editingGoal._id });
+        toast({
+          title: "Goal Updated",
+          description: `${goalData.title} has been updated successfully.`,
+        });
+      } else {
+        // For adding, just call the parent handler
+        await onAddGoal(goalData);
+        toast({
+          title: "Goal Created",
+          description: `${goalData.title} goal has been set successfully.`,
+        });
+      }
+
+      onClose();
+      setFormData({
+        title: "",
+        description: "",
+        targetAmount: "",
+        currentAmount: "0",
+        deadline: "",
+        category: "",
+      });
+    } catch (error) {
+      console.error("Error saving goal:", error);
+      toast({
+        title: "Error",
+        description: "There was a problem saving your goal.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Set New Financial Goal</DialogTitle>
+          <DialogTitle>
+            {editingGoal ? "Edit Financial Goal" : "Set New Financial Goal"}
+          </DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -67,7 +135,9 @@ export function AddGoalModal({ isOpen, onClose }: AddGoalModalProps) {
             <Input
               id="title"
               value={formData.title}
-              onChange={(e) => setFormData({...formData, title: e.target.value})}
+              onChange={(e) =>
+                setFormData({ ...formData, title: e.target.value })
+              }
               placeholder="e.g., Emergency Fund"
               required
             />
@@ -78,7 +148,9 @@ export function AddGoalModal({ isOpen, onClose }: AddGoalModalProps) {
             <Textarea
               id="description"
               value={formData.description}
-              onChange={(e) => setFormData({...formData, description: e.target.value})}
+              onChange={(e) =>
+                setFormData({ ...formData, description: e.target.value })
+              }
               placeholder="Brief description of your goal"
               rows={2}
             />
@@ -86,7 +158,12 @@ export function AddGoalModal({ isOpen, onClose }: AddGoalModalProps) {
 
           <div>
             <Label htmlFor="category">Category</Label>
-            <Select value={formData.category} onValueChange={(value) => setFormData({...formData, category: value})}>
+            <Select
+              value={formData.category}
+              onValueChange={(value) =>
+                setFormData({ ...formData, category: value })
+              }
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Select category" />
               </SelectTrigger>
@@ -107,7 +184,12 @@ export function AddGoalModal({ isOpen, onClose }: AddGoalModalProps) {
                 id="currentAmount"
                 type="number"
                 value={formData.currentAmount}
-                onChange={(e) => setFormData({...formData, currentAmount: e.target.value})}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    currentAmount: e.target.value,
+                  })
+                }
                 required
               />
             </div>
@@ -117,7 +199,12 @@ export function AddGoalModal({ isOpen, onClose }: AddGoalModalProps) {
                 id="targetAmount"
                 type="number"
                 value={formData.targetAmount}
-                onChange={(e) => setFormData({...formData, targetAmount: e.target.value})}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    targetAmount: e.target.value,
+                  })
+                }
                 required
               />
             </div>
@@ -129,17 +216,28 @@ export function AddGoalModal({ isOpen, onClose }: AddGoalModalProps) {
               id="deadline"
               type="date"
               value={formData.deadline}
-              onChange={(e) => setFormData({...formData, deadline: e.target.value})}
+              onChange={(e) =>
+                setFormData({ ...formData, deadline: e.target.value })
+              }
               required
             />
           </div>
 
           <div className="flex space-x-2 pt-4">
-            <Button type="button" variant="outline" onClick={onClose} className="flex-1">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onClose}
+              className="flex-1"
+            >
               Cancel
             </Button>
-            <Button type="submit" className="flex-1 bg-blue-600 hover:bg-blue-700">
-              Create Goal
+            <Button
+              type="submit"
+              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
+            >
+              {editingGoal ? "Update Goal" : "Create Goal"}
+              
             </Button>
           </div>
         </form>

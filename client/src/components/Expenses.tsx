@@ -1,64 +1,22 @@
-
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Calendar, CreditCard, Folder, DollarSign } from "lucide-react";
+import { Plus, Calendar, CreditCard, Folder, DollarSign, Pencil, Trash2 } from "lucide-react";
 import { AddExpenseModal } from "@/components/AddExpenseModal";
-
-const mockExpenses = [
-  {
-    id: 1,
-    description: "Adobe Creative Suite",
-    amount: 2500,
-    category: "Software Tools",
-    project: "Website Design",
-    date: "2024-06-01",
-    type: "project"
-  },
-  {
-    id: 2,
-    description: "MacBook Pro",
-    amount: 120000,
-    category: "Equipment",
-    project: "Mobile App Development",
-    date: "2024-06-05",
-    type: "project"
-  },
-  {
-    id: 3,
-    description: "Uber rides",
-    amount: 3500,
-    category: "Transport",
-    project: "Logo Design",
-    date: "2024-06-10",
-    type: "project"
-  },
-  {
-    id: 4,
-    description: "Office Rent",
-    amount: 25000,
-    category: "Office",
-    project: null,
-    date: "2024-06-01",
-    type: "personal"
-  },
-  {
-    id: 5,
-    description: "Internet Bill",
-    amount: 2000,
-    category: "Utilities",
-    project: null,
-    date: "2024-06-03",
-    type: "personal"
-  },
-];
+import { fetchExpenses, addExpense, updateExpense, deleteExpense } from "@/lib/api";
 
 export function Expenses() {
+  const [expenses, setExpenses] = useState<any[]>([]);
   const [isAddExpenseOpen, setIsAddExpenseOpen] = useState(false);
+  const [editingExpense, setEditingExpense] = useState<any>(null);
   const [filter, setFilter] = useState("all");
 
-  const filteredExpenses = mockExpenses.filter(expense => {
+  useEffect(() => {
+    fetchExpenses().then(setExpenses);
+  }, []);
+
+  const filteredExpenses = expenses.filter(expense => {
     if (filter === "all") return true;
     return expense.type === filter;
   });
@@ -75,6 +33,31 @@ export function Expenses() {
   };
 
   const totalExpenses = filteredExpenses.reduce((sum, expense) => sum + expense.amount, 0);
+
+  // Add expense using API
+  const handleAddExpense = async (newExpense: any) => {
+    const created = await addExpense(newExpense);
+    setExpenses(prev => [...prev, created]);
+  };
+
+  // Update expense using API
+  const handleUpdateExpense = async (updatedExpense: any) => {
+    const updated = await updateExpense(updatedExpense._id || updatedExpense.id, updatedExpense);
+    setExpenses(prev => prev.map(expense => (expense._id === updated._id ? updated : expense)));
+  };
+
+  // Delete expense using API
+  const handleDelete = async (id: string) => {
+    const confirmed = window.confirm("Are you sure you want to delete this expense?");
+    if (!confirmed) return;
+    await deleteExpense(id);
+    setExpenses(prev => prev.filter(expense => expense._id !== id));
+  };
+
+  const handleEdit = (expense: any) => {
+    setEditingExpense(expense);
+    setIsAddExpenseOpen(true);
+  };
 
   return (
     <div className="space-y-6">
@@ -132,7 +115,7 @@ export function Expenses() {
 
       <div className="space-y-4">
         {filteredExpenses.map((expense) => (
-          <Card key={expense.id} className="bg-white shadow-sm hover:shadow-md transition-shadow">
+          <Card key={expense._id} className="bg-white shadow-sm hover:shadow-md transition-shadow">
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div className="flex-1">
@@ -164,6 +147,12 @@ export function Expenses() {
                       {expense.type === "project" ? "Project" : "Personal"}
                     </div>
                   </div>
+                  <Button size="icon" variant="ghost" onClick={() => handleEdit(expense)}>
+                    <Pencil className="h-4 w-4 text-blue-600" />
+                  </Button>
+                  <Button size="icon" variant="ghost" onClick={() => handleDelete(expense._id)}>
+                    <Trash2 className="h-4 w-4 text-red-600" />
+                  </Button>
                 </div>
               </div>
             </CardContent>
@@ -173,7 +162,13 @@ export function Expenses() {
 
       <AddExpenseModal 
         isOpen={isAddExpenseOpen}
-        onClose={() => setIsAddExpenseOpen(false)}
+        onClose={() => {
+          setIsAddExpenseOpen(false);
+          setEditingExpense(null);
+        }}
+        onAddExpense={handleAddExpense}
+        onUpdateExpense={handleUpdateExpense}
+        editingExpense={editingExpense}
       />
     </div>
   );
