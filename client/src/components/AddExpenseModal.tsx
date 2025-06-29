@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -10,6 +9,7 @@ import { toast } from "@/hooks/use-toast";
 interface AddExpenseModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onAddExpense: (expense: any) => Promise<void>;
 }
 
 const categories = [
@@ -29,7 +29,7 @@ const projects = [
   "E-commerce Platform"
 ];
 
-export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
+export function AddExpenseModal({ isOpen, onClose, onAddExpense }: AddExpenseModalProps) {
   const [formData, setFormData] = useState({
     description: "",
     amount: "",
@@ -39,17 +39,16 @@ export function AddExpenseModal({ isOpen, onClose }: AddExpenseModalProps) {
     date: new Date().toISOString().split('T')[0]
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    console.log("New expense:", formData);
-    
+    await onAddExpense({
+      ...formData,
+      amount: Number(formData.amount),
+    });
     toast({
       title: "Expense Added",
       description: `${formData.description} (₱${Number(formData.amount).toLocaleString()}) has been recorded.`,
     });
-
-    // Reset form and close modal
     setFormData({
       description: "",
       amount: "",

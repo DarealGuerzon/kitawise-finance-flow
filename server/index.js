@@ -1,41 +1,37 @@
 const express = require('express');
 const cors = require('cors');
+const mongoose = require('mongoose');
+const dotenv = require('dotenv');
+dotenv.config();
 const app = express();
-const PORT = 4000;
+PORT=4000;
 
+// Middleware
 app.use(cors());
 app.use(express.json());
 
-let goals = []; // In-memory storage
-
-// Get all goals
-app.get('/api/goals', (req, res) => {
-  res.json(goals);
+// MongoDB connection
+console.log('MONGODB_URI:', process.env.MONGODB_URI); // Debug
+mongoose.connect(process.env.MONGODB_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
+const db = mongoose.connection;
+db.on('error', console.error.bind(console, 'MongoDB connection error:'));
+db.once('open', () => {
+  console.log('Connected to MongoDB');
 });
 
-// Add a new goal
-app.post('/api/goals', (req, res) => {
-  const newGoal = { ...req.body, id: Date.now() };
-  goals.push(newGoal);
-  res.status(201).json(newGoal);
-});
+// Routes
+const goalsRoutes = require('./routes/goals');
+const projectsRoutes = require('./routes/projects');
+const expensesRouter = require('./routes/expenses')
 
-// Delete a goal
-app.delete('/api/goals/:id', (req, res) => {
-  const id = Number(req.params.id);
-  goals = goals.filter(goal => goal.id !== id);
-  res.status(204).end();
-});
+app.use('/api/goals', goalsRoutes);
+app.use('/api/projects', projectsRoutes);
+app.use('/api/expenses',expensesRouter)
 
-// Edit (update) a goal
-app.put('/api/goals/:id', (req, res) => {
-  const id = Number(req.params.id);
-  const index = goals.findIndex(goal => goal.id === id);
-  if (index === -1) return res.status(404).json({ error: "Goal not found" });
-  goals[index] = { ...goals[index], ...req.body, id };
-  res.json(goals[index]);
-});
-
+// Start server
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });

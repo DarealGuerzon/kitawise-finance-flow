@@ -81,57 +81,27 @@ export function AddGoalModal({
       ...formData,
       targetAmount: parseFloat(formData.targetAmount),
       currentAmount: parseFloat(formData.currentAmount),
-      status: editingGoal?.status || "active", // ✅ Preserve status when editing
+      status: editingGoal?.status || "active",
     };
 
     try {
-      let res;
-
       if (editingGoal) {
-        
-        res = await fetch(`http://localhost:4000/api/goals/${editingGoal.id}`, {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(goalData),
-        });
-
-        if (!res.ok) throw new Error("Failed to update goal");
-
-        const updatedGoal = await res.json();
-
+        // For editing, you can keep the direct API call or use a prop like onUpdateGoal
+        await onUpdateGoal({ ...goalData, _id: editingGoal._id });
         toast({
           title: "Goal Updated",
           description: `${goalData.title} has been updated successfully.`,
         });
-
-        onUpdateGoal(updatedGoal); 
       } else {
-        // Normal add mode
-        res = await fetch("http://localhost:4000/api/goals", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(goalData),
-        });
-
-        if (!res.ok) throw new Error("Failed to add goal");
-
-        const savedGoal = await res.json();
-
+        // For adding, just call the parent handler
+        await onAddGoal(goalData);
         toast({
           title: "Goal Created",
           description: `${goalData.title} goal has been set successfully.`,
         });
-
-        onAddGoal(savedGoal); 
       }
 
-      onClose(); // Close modal
-
-      // Reset form
+      onClose();
       setFormData({
         title: "",
         description: "",

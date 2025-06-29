@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Folder, Plus, DollarSign } from "lucide-react";
 import {
@@ -30,14 +29,13 @@ export function AppSidebar() {
   return (
     <>
       <Sidebar className={`${isCollapsed ? "w-14" : "w-64"} bg-sidebar border-r border-sidebar-border`}>
-        <div className="p-4 border-b border-sidebar-border">
+        <div className="p-4 border-b border-sidebar-border flex items-center justify-between">
           {!isCollapsed && (
             <div className="flex items-center space-x-2">
               <DollarSign className="h-8 w-8 text-sidebar-foreground" />
               <h1 className="text-xl font-bold text-sidebar-foreground">Kitawise</h1>
             </div>
           )}
-          <SidebarTrigger className="mt-2 text-sidebar-foreground/70 hover:text-sidebar-foreground" />
         </div>
 
         <SidebarContent className="bg-sidebar">
