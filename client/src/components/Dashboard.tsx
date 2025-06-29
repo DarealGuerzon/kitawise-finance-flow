@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { fetchExpenses, fetchProjects } from "@/lib/api";
+import { fetchExpenses, fetchProjects, fetchGoals } from "@/lib/api";
 import {
   BarChart,
   Bar,
@@ -18,16 +18,24 @@ import { DollarSign, TrendingUp, Target, AlertTriangle } from "lucide-react";
 export function Dashboard() {
   const [expenses, setExpenses] = useState<any[]>([]);
   const [projects, setProjects] = useState<any[]>([]);
+  const [goals, setGoals] = useState<any[]>([]);
 
   useEffect(() => {
     fetchExpenses().then(setExpenses);
     fetchProjects().then(setProjects);
+    fetchGoals().then(setGoals);
   }, []);
 
   const totalIncome = projects.reduce((sum, p) => sum + (p.actualIncome || 0), 0);
   const totalExpenses = expenses.reduce((sum, e) => sum + e.amount, 0);
   const netProfit = totalIncome - totalExpenses;
-  const goalProgress = 65; // Static for now, can be fetched later
+
+  // Calculate goal progress from real-time goals data
+  const totalGoalTarget = goals.reduce((sum, g) => sum + (g.targetAmount || 0), 0);
+  const totalGoalCurrent = goals.reduce((sum, g) => sum + (g.currentAmount || 0), 0);
+  const goalProgress = totalGoalTarget
+    ? Math.round((totalGoalCurrent / totalGoalTarget) * 100)
+    : 0;
 
   const barChartData = generateMonthlyData(expenses, projects);
 
@@ -135,7 +143,9 @@ export function Dashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{goalProgress}%</div>
-            <p className="text-xs text-muted-foreground mt-1">₱35,000 to go</p>
+            <p className="text-xs text-muted-foreground mt-1">
+              ₱{(totalGoalTarget - totalGoalCurrent).toLocaleString()} to go
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -193,6 +203,12 @@ export function Dashboard() {
                     border: "1px solid hsl(var(--border))",
                     borderRadius: "6px",
                   }}
+                  labelStyle={{
+                    color: "hsl(var(--foreground))",
+                  }}
+                  itemStyle={{
+                    color: "hsl(var(--foreground))",
+                  }}
                 />
               </PieChart>
             </ResponsiveContainer>
@@ -221,7 +237,7 @@ export function Dashboard() {
           </div>
           <div className="bg-muted/50 p-4 rounded-lg border border-border">
             <p className="text-sm">
-              🎯 <strong>Goal Tracking:</strong> You're 65% toward your ₱100,000 savings goal. To reach it by month-end, save ₱8,750 weekly.
+              🎯 <strong>Goal Tracking:</strong> You're {goalProgress}% toward your ₱{totalGoalTarget.toLocaleString()} savings goal. To reach it by month-end, save ₱{totalGoalTarget > 0 ? Math.ceil((totalGoalTarget - totalGoalCurrent) / 4).toLocaleString() : 0} weekly.
             </p>
           </div>
         </CardContent>
