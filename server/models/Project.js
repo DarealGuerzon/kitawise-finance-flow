@@ -7,7 +7,9 @@ const projectSchema = new mongoose.Schema({
   actualIncome: Number,
   date: Date,
   status: String,
+  timeline: String,
   profitability: Number,
+  description: String,
 });
 
 const Project = mongoose.model('Project', projectSchema);
