@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -51,7 +50,6 @@ export function ChatbotModal({ isOpen, onClose }: ChatbotModalProps) {
 
     setMessages(prev => [...prev, userMessage]);
 
-    // Simple keyword-based response system
     setTimeout(() => {
       const lowerInput = inputMessage.toLowerCase();
       let response = sampleResponses.default;
@@ -85,7 +83,7 @@ export function ChatbotModal({ isOpen, onClose }: ChatbotModalProps) {
       <DialogContent className="max-w-2xl h-[600px] flex flex-col">
         <DialogHeader>
           <DialogTitle className="flex items-center space-x-2">
-            <Bot className="h-5 w-5 text-blue-600" />
+            <Bot className="h-5 w-5 text-blue-600 dark:text-blue-400" />
             <span>AI Financial Assistant</span>
           </DialogTitle>
         </DialogHeader>
@@ -101,17 +99,25 @@ export function ChatbotModal({ isOpen, onClose }: ChatbotModalProps) {
                   className={`max-w-[80%] p-3 rounded-lg ${
                     message.type === "user"
                       ? "bg-blue-600 text-white"
-                      : "bg-gray-100 text-gray-900"
+                      : "bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-100"
                   }`}
                 >
                   <div className="flex items-start space-x-2">
-                    {message.type === "bot" && <Bot className="h-4 w-4 mt-0.5 text-blue-600" />}
-                    {message.type === "user" && <User className="h-4 w-4 mt-0.5" />}
+                    {message.type === "bot" && (
+                      <Bot className="h-4 w-4 mt-0.5 text-blue-600 dark:text-blue-400" />
+                    )}
+                    {message.type === "user" && (
+                      <User className="h-4 w-4 mt-0.5 text-white" />
+                    )}
                     <div className="flex-1">
                       <p className="text-sm">{message.message}</p>
-                      <p className={`text-xs mt-1 ${
-                        message.type === "user" ? "text-blue-100" : "text-gray-500"
-                      }`}>
+                      <p
+                        className={`text-xs mt-1 ${
+                          message.type === "user"
+                            ? "text-blue-100"
+                            : "text-gray-500 dark:text-gray-400"
+                        }`}
+                      >
                         {message.timestamp.toLocaleTimeString()}
                       </p>
                     </div>
@@ -122,7 +128,7 @@ export function ChatbotModal({ isOpen, onClose }: ChatbotModalProps) {
           </div>
         </ScrollArea>
 
-        <div className="flex space-x-2 pt-4 border-t">
+        <div className="flex space-x-2 pt-4 border-t border-border">
           <Input
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
@@ -130,12 +136,12 @@ export function ChatbotModal({ isOpen, onClose }: ChatbotModalProps) {
             placeholder="Ask about budgeting, saving, pricing, or income management..."
             className="flex-1"
           />
-          <Button onClick={sendMessage} className="bg-blue-600 hover:bg-blue-700">
+          <Button onClick={sendMessage} className="bg-blue-600 hover:bg-blue-700 text-white">
             <Send className="h-4 w-4" />
           </Button>
         </div>
 
-        <div className="mt-2 text-xs text-gray-500">
+        <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
           Try asking: "How should I budget?", "How to save money?", "How to price my services?", or "Managing irregular income"
         </div>
       </DialogContent>

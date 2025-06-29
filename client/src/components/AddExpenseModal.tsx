@@ -9,7 +9,9 @@ import { toast } from "@/hooks/use-toast";
 interface AddExpenseModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onAddExpense: (expense: any) => Promise<void>;
+  onAddExpense: (newExpense: any) => Promise<void>;
+  onUpdateExpense: (updatedExpense: any) => Promise<void>;
+  editingExpense: any;
 }
 
 const categories = [
@@ -151,7 +153,7 @@ export function AddExpenseModal({ isOpen, onClose, onAddExpense }: AddExpenseMod
             <Button type="button" variant="outline" onClick={onClose} className="flex-1">
               Cancel
             </Button>
-            <Button type="submit" className="flex-1 bg-blue-600 hover:bg-blue-700">
+            <Button type="submit" className="flex-1 bg-blue-600 hover:bg-blue-700 dark:text-foreground">
               Add Expense
             </Button>
           </div>

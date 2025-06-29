@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { MessageSquare, BarChart, Folder, CreditCard, Goal, ArrowLeftFromLine } from "lucide-react";
 import { useSidebar } from "@/components/ui/sidebar";
+import ThemeToggle from "./themeToggle";
 
 interface TopNavbarProps {
   activeView: string;
@@ -48,15 +49,19 @@ export function TopNavbar({ activeView, setActiveView, onChatbotOpen }: TopNavba
             ))}
           </div>
         </div>
+        
+        <section className="flex items-center justify-center gap-3">
+          <ThemeToggle />
+          <Button
+            variant="outline"
+            className="flex items-center space-x-2 border-border text-foreground hover:bg-accent"
+            onClick={onChatbotOpen}
+          >
+            <MessageSquare className="h-4 w-4" />
+            <span>AI Assistant</span>
+          </Button>
+        </section>
 
-        <Button
-          variant="outline"
-          className="flex items-center space-x-2 border-border text-foreground hover:bg-accent"
-          onClick={onChatbotOpen}
-        >
-          <MessageSquare className="h-4 w-4" />
-          <span>AI Assistant</span>
-        </Button>
       </div>
     </nav>
   );

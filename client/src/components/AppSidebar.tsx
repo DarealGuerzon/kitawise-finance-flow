@@ -39,7 +39,7 @@ export function AppSidebar() {
   return (
     <>
       <Sidebar className={`${isCollapsed ? "w-14" : "w-64"} bg-sidebar border-r border-sidebar-border`}>
-        <div className="p-4 border-b border-sidebar-border flex items-center justify-between">
+        <div className="p-5 border-b border-sidebar-border flex items-center justify-between">
           {!isCollapsed && (
             <div className="flex items-center space-x-2">
               <DollarSign className="h-8 w-8 text-sidebar-foreground" />
