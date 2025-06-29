@@ -194,6 +194,8 @@ export function AddGoalModal({
               <SelectContent>
                 <SelectItem value="active">Active</SelectItem>
                 <SelectItem value="completed">Completed</SelectItem>
+                <SelectItem value="inprogress">In Progress</SelectItem>
+                <SelectItem value="notstarted">Not Started</SelectItem>
               </SelectContent>
             </Select>
           </div>

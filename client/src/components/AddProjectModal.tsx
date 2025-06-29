@@ -4,8 +4,18 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select } from "@/components/ui/select";
-import { SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { CalendarIcon } from "lucide-react";
+import { format } from "date-fns";
+import { toast } from "@/hooks/use-toast";
 
 interface AddProjectModalProps {
   isOpen: boolean;
@@ -14,6 +24,12 @@ interface AddProjectModalProps {
   onUpdateProject?: (project: any) => void;
   editingProject?: any;
 }
+
+const projectStatuses = [
+  { label: "Not Started", value: "notStarted" },
+  { label: "In Progress", value: "inProgress" },
+  { label: "Completed", value: "completed" },
+];
 
 export function AddProjectModal({
   isOpen,
@@ -27,10 +43,9 @@ export function AddProjectModal({
     client: "",
     expectedIncome: "",
     actualIncome: "",
-    date: "",
-    timeline: "",
-    status: "Active",
+    date: "", // formatted as yyyy-MM-dd
     description: "",
+    status: "notStarted",
   });
 
   useEffect(() => {
@@ -40,24 +55,20 @@ export function AddProjectModal({
         client: editingProject.client || "",
         expectedIncome: editingProject.expectedIncome?.toString() || "",
         actualIncome: editingProject.actualIncome?.toString() || "",
-        date: editingProject.date
-          ? new Date(editingProject.date).toISOString().split("T")[0]
-          : "",
-        timeline: editingProject.timeline || "",
-        status: editingProject.status || "Active",
+        date: editingProject.date?.split("T")[0] || "",
         description: editingProject.description || "",
+        status: editingProject.status || "notStarted",
       });
-    } else {
-      setFormData({
-        name: "",
-        client: "",
-        expectedIncome: "",
-        actualIncome: "",
-        date: "",
-        timeline: "",
-        status: "Active",
-        description: "",
-      });
+    // } else {
+    //   setFormData({
+    //     name: "",
+    //     client: "",
+    //     expectedIncome: "",
+    //     actualIncome: "",
+    //     date: "",
+    //     description: "",
+    //     status: "notStarted",
+    //   });
     }
   }, [editingProject, isOpen]);
 
@@ -70,15 +81,22 @@ export function AddProjectModal({
       expectedIncome: Number(formData.expectedIncome),
       actualIncome: Number(formData.actualIncome),
       date: formData.date,
-      timeline: formData.timeline,
-      status: formData.status,
       description: formData.description,
+      status: formData.status,
     };
 
     if (editingProject && onUpdateProject) {
       onUpdateProject(projectPayload);
+      toast({
+        title: "Project Updated",
+        description: `${formData.name} has been updated.`,
+      });
     } else if (onAddProject) {
       onAddProject(projectPayload);
+      toast({
+        title: "Project Added",
+        description: `${formData.name} has been added.`,
+      });
     }
 
     setFormData({
@@ -87,10 +105,10 @@ export function AddProjectModal({
       expectedIncome: "",
       actualIncome: "",
       date: "",
-      timeline: "",
-      status: "Active",
       description: "",
+      status: "notStarted",
     });
+
     onClose();
   };
 
@@ -145,43 +163,50 @@ export function AddProjectModal({
           </div>
 
           <div>
-            <Label htmlFor="date">Project Date</Label>
-            <Input
-              id="date"
-              type="date"
-              value={formData.date}
-              onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-              required
-            />
-          </div>
-
-          {/* 🟢 New: Timeline */}
-          {/* <div>
-            <Label htmlFor="timeline">Timeline</Label>
-            <Input
-              id="timeline"
-              placeholder="e.g., 2025-01-22 to 2025-05-28"
-              value={formData.timeline}
-              onChange={(e) => setFormData({ ...formData, timeline: e.target.value })}
-              required
-            />
-          </div> */}
-
-          {/* 🟢 New: Status */}
-          <div>
             <Label htmlFor="status">Status</Label>
             <Select
               value={formData.status}
               onValueChange={(value) => setFormData({ ...formData, status: value })}
             >
-              <SelectTrigger className="w-full">
+              <SelectTrigger>
                 <SelectValue placeholder="Select status" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="Active">Active</SelectItem>
-                <SelectItem value="Completed">Completed</SelectItem>
+                {projectStatuses.map((status) => (
+                  <SelectItem key={status.value} value={status.value}>
+                    {status.label}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
+          </div>
+
+          {/* ✅ Custom Date Picker using Calendar and Popover */}
+          <div>
+            <Label htmlFor="date">Project Date</Label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="w-full justify-start text-left font-normal"
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {formData.date ? format(new Date(formData.date), "PPP") : <span>Pick a date</span>}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0">
+                <Calendar
+                  mode="single"
+                  selected={formData.date ? new Date(formData.date) : undefined}
+                  onSelect={(date) =>
+                    setFormData({
+                      ...formData,
+                      date: date ? format(date, "yyyy-MM-dd") : "",
+                    })
+                  }
+                />
+              </PopoverContent>
+            </Popover>
           </div>
 
           <div>
