@@ -6,6 +6,7 @@
 🧠 Categorize goals (Savings, Income, Equipment, Business, etc.)
 🔒 Data persistence through a backend API (MongoDB + Express)
 🧱 Tech Stack
+
 Frontend: React + TypeScript + TailwindCSS + ShadCN UI
 Backend: Node.js + Express.js
 Database: MongoDB
