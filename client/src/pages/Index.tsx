@@ -9,7 +9,7 @@ import { Expenses } from "@/components/Expenses";
 import { Goals } from "@/components/Goals";
 import { ChatbotModal } from "@/components/ChatbotModal";
 
-const Index = () => {
+const Index: React.FC = () => {
   const [activeView, setActiveView] = useState("dashboard");
   const [isChatbotOpen, setIsChatbotOpen] = useState(false);
 
