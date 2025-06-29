@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { toast } from "@/hooks/use-toast";
+import { Select } from "@/components/ui/select";
+import { SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 
 interface AddProjectModalProps {
   isOpen: boolean;
@@ -27,6 +28,8 @@ export function AddProjectModal({
     expectedIncome: "",
     actualIncome: "",
     date: "",
+    timeline: "",
+    status: "Active",
     description: "",
   });
 
@@ -37,8 +40,11 @@ export function AddProjectModal({
         client: editingProject.client || "",
         expectedIncome: editingProject.expectedIncome?.toString() || "",
         actualIncome: editingProject.actualIncome?.toString() || "",
-        // 🔄 CHANGED: Use `date` instead of timeline
-        date: editingProject.date?.split("T")[0] || "", // format YYYY-MM-DD
+        date: editingProject.date
+          ? new Date(editingProject.date).toISOString().split("T")[0]
+          : "",
+        timeline: editingProject.timeline || "",
+        status: editingProject.status || "Active",
         description: editingProject.description || "",
       });
     } else {
@@ -47,7 +53,9 @@ export function AddProjectModal({
         client: "",
         expectedIncome: "",
         actualIncome: "",
-        date: "", // 🆕 ADDED
+        date: "",
+        timeline: "",
+        status: "Active",
         description: "",
       });
     }
@@ -61,8 +69,9 @@ export function AddProjectModal({
       client: formData.client,
       expectedIncome: Number(formData.expectedIncome),
       actualIncome: Number(formData.actualIncome),
-      // 🆕 ADDED
       date: formData.date,
+      timeline: formData.timeline,
+      status: formData.status,
       description: formData.description,
     };
 
@@ -77,7 +86,9 @@ export function AddProjectModal({
       client: "",
       expectedIncome: "",
       actualIncome: "",
-      date: "", // 🆕 ADDED
+      date: "",
+      timeline: "",
+      status: "Active",
       description: "",
     });
     onClose();
@@ -133,7 +144,6 @@ export function AddProjectModal({
             />
           </div>
 
-          {/* 🔄 CHANGED: Use a date picker instead of a free text timeline */}
           <div>
             <Label htmlFor="date">Project Date</Label>
             <Input
@@ -143,6 +153,35 @@ export function AddProjectModal({
               onChange={(e) => setFormData({ ...formData, date: e.target.value })}
               required
             />
+          </div>
+
+          {/* 🟢 New: Timeline */}
+          {/* <div>
+            <Label htmlFor="timeline">Timeline</Label>
+            <Input
+              id="timeline"
+              placeholder="e.g., 2025-01-22 to 2025-05-28"
+              value={formData.timeline}
+              onChange={(e) => setFormData({ ...formData, timeline: e.target.value })}
+              required
+            />
+          </div> */}
+
+          {/* 🟢 New: Status */}
+          <div>
+            <Label htmlFor="status">Status</Label>
+            <Select
+              value={formData.status}
+              onValueChange={(value) => setFormData({ ...formData, status: value })}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Active">Active</SelectItem>
+                <SelectItem value="Completed">Completed</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           <div>
