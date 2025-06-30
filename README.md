@@ -1,44 +1,152 @@
-🎯 Financial Goals Module - Feature Overview
-Manage and track your financial aspirations with ease and intelligence.
+# **KITAWISE**
 
-✅ Key Features
-Add and manage multiple financial goals
-Set as many goals as you want, from savings to investments.
+KitaWise is a web-based smart financial assistant built specifically for Filipino freelancers and micro-entrepreneurs. It helps users track income, monitor expenses, and understand their financial standing—all in one platform. With its user-friendly interface, localized design, and AI-powered insights, KitaWise simplifies bookkeeping and budgeting, enabling freelancers to make smarter decisions, set goals, and treat their work as a real business, not just one-time gigs.
 
-📊 Visual progress tracking for each goal
-See how close you are to hitting your targets through intuitive visuals.
 
-🗓️ Deadline & Time Remaining Insights
-Stay on top of your goals with automatic countdowns and due date reminders.
+**Note:** Version 1 is in the `kitawise-v1` branch
 
-💡 Smart Weekly Saving Recommendations
-Get personalized suggestions based on your target amount, deadline, and income.
+---
 
-📝 Edit or Delete Goals Anytime
-Keep your goals flexible and up to date.
+## ✨ Features
 
-🧠 Goal Categorization
-Classify goals as Savings, Income, Equipment, Business, and more for better organization.
+- **Frontend**:  
+  - Built with **React** + **TypeScript**  
+  - Modern styling with **shadcn/ui** and **Tailwind CSS**  
+  - Data visualization using **Recharts**
 
-🔒 Persistent Data Storage
-All your data is securely stored and synced through a backend API.
+- **Backend**:  
+  - Developed with **Node.js**, **Express**, and **TypeScript**  
+  - Authentication with **OAuth2** and **JWT**  
+  - Database powered by **MongoDB** via **Mongoose**  
+  - AI Integration with **Hugging Face** and **Llama** APIs
 
-🧱 Tech Stack
-Frontend
-React
+- **Authentication**:
+  - OAuth2 login with **Google** and **Facebook**
 
-TypeScript
+---
 
-TailwindCSS
+## 🛠️ Tech Stack
 
-ShadCN UI
+| Layer      | Technology                                |
+|------------|-------------------------------------------|
+| **Frontend**  | React, TypeScript, Tailwind CSS, shadcn/ui, Recharts |
+| **Backend**   | Node.js, Express, TypeScript, Mongoose |
+| **Database**  | MongoDB                                 |
+| **AI Models** | Hugging Face, Llama APIs               |
+| **Auth**      | OAuth2, JWT                            |
 
-Lucide Icons
+---
 
-Backend
-Node.js
+## ⚡ Installation
 
-Express.js
+### 1️⃣ Clone the repository
+```bash
+git clone https://github.com/DarealGuerzon/kitawise-finance-flow/tree/kitawise-v1
+cd your-repo
+```
 
-Database
-MongoDB
+### 2️⃣ Install dependencies
+
+#### Backend
+```bash
+cd backend
+npm install
+```
+
+#### Frontend
+```bash
+cd ../frontend
+npm install
+```
+
+---
+
+## 🔑 Environment Setup
+
+Create the following `.env` files in each directory.
+
+---
+
+### 📂 `backend/.env`
+
+```env
+PORT=5000
+
+# MongoDB
+MONGO_URI=mongodb+srv://<username>:<password>@cluster0.mongodb.net/<dbname>?retryWrites=true&w=majority
+
+# JWT
+JWT_SECRET=your_jwt_secret
+
+# OAuth Providers
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
+FACEBOOK_CLIENT_ID=your_facebook_client_id
+FACEBOOK_CLIENT_SECRET=your_facebook_client_secret
+
+# AI Integration
+HUGGING_FACE_API_KEY=your_hugging_face_api_key
+LLAMA_API_URL=https://api.llama.com/endpoint
+```
+
+---
+
+### 📂 `frontend/.env`
+
+```env
+REACT_APP_API_URL=http://localhost:5000
+```
+
+---
+
+## 🚀 Running the Application
+
+> Make sure MongoDB is running or accessible via connection string.
+
+### Start Backend
+```bash
+cd server
+npm install
+node index.js
+```
+
+### Start Frontend
+```bash
+cd ../client
+npm install
+npm run dev
+```
+
+---
+
+## 💻 Usage
+
+1. **Visit** `http://localhost:8080`(frontend) and `http://localhost:8080`(backend) 
+2. **Sign/Log in** 
+3. Interact with the web application and the AI features.
+4. Explore analytics and user-specific data.
+
+---
+
+## 🧩 Project Structure
+
+```
+repo/
+├── server/
+│   ├── src/
+│   │   ├── routes/
+│   │   ├── models/
+│   │   └── index.js
+│   └── package.json
+├── client/
+│   ├── src/
+│   │   ├── components/
+│   │   ├── context/
+│   │   ├── lib/
+│   │   ├── hooks/
+│   │   ├── pages/
+│   │   ├── App.tsx
+│   │   └── index.tsx
+│   └── package.json
+└── README.md
+```
