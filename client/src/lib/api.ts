@@ -1,5 +1,7 @@
-const API_BASE = "http://localhost:4000/api";
+// 👇 Use env variable for dynamic base URL
+const API_BASE = `${import.meta.env.VITE_API_URL}/api`;
 
+// Projects API
 export async function fetchProjects() {
   const res = await fetch(`${API_BASE}/projects`);
   return res.json();

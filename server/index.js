@@ -7,7 +7,10 @@ const app = express();
 PORT=4000;
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: 'https://kitawise-finance-flow.vercel.app',
+  credentials: true, // Only if you use cookies/auth
+}));
 app.use(express.json());
 
 // MongoDB connection
