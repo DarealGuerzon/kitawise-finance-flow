@@ -1,4 +1,3 @@
-// 👇 Use env variable for dynamic base URL
 const API_BASE = `${import.meta.env.VITE_API_URL}/api`;
 
 // Projects API
