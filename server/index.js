@@ -9,7 +9,7 @@ const PORT = process.env.PORT || 4000; // ✅ Correct here
 
 // Middleware
 app.use(cors({
-  origin: 'https://kitawise-finance-flow.vercel.app', // ✅ your frontend on Vercel
+  origin: 'https://kitawise-financial-tracker.vercel.app', // ✅ your frontend on Vercel
   credentials: true,
 }));
 app.use(express.json());
