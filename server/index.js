@@ -3,18 +3,18 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 dotenv.config();
+
 const app = express();
-PORT=4000;
+const PORT = process.env.PORT || 4000; // ✅ Correct here
 
 // Middleware
 app.use(cors({
-  origin: 'https://kitawise-finance-flow.vercel.app',
-  credentials: true, // Only if you use cookies/auth
+  origin: 'https://kitawise-finance-flow.vercel.app', // ✅ your frontend on Vercel
+  credentials: true,
 }));
 app.use(express.json());
 
-// MongoDB connection
-console.log('MONGODB_URI:', process.env.MONGODB_URI); // Debug
+// MongoDB
 mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
@@ -28,13 +28,13 @@ db.once('open', () => {
 // Routes
 const goalsRoutes = require('./routes/goals');
 const projectsRoutes = require('./routes/projects');
-const expensesRouter = require('./routes/expenses')
+const expensesRouter = require('./routes/expenses');
 
 app.use('/api/goals', goalsRoutes);
 app.use('/api/projects', projectsRoutes);
-app.use('/api/expenses',expensesRouter)
+app.use('/api/expenses', expensesRouter);
 
 // Start server
 app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
